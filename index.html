@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIN95_IDE.EXE</title>
+<style>
+    :root {
+        --win-gray: #c0c0c0;
+        --win-blue: #000080;
+        --win-white: #ffffff;
+        --win-shadow: #808080;
+    }
+
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--win-gray);
+        font-family: "Tahoma", "Arial", sans-serif;
+        padding: 4px;
+        box-sizing: border-box;
+    }
+
+    /* THE CONTAINER: This handles the side-by-side vs top-down logic */
+    .app-container {
+        display: flex;
+        flex: 1;
+        gap: 4px;
+        flex-direction: column; /* Default: Stacked for Mobile */
+        min-height: 0; 
+    }
+
+    @media (min-width: 768px) {
+        .app-container {
+            flex-direction: row; /* Desktop: Side-by-side */
+        }
+    }
+
+    .pane {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: 2px outset var(--win-white);
+        background-color: var(--win-gray);
+        min-height: 0;
+    }
+
+    .title-bar {
+        background-color: var(--win-blue);
+        color: white;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        user-select: none;
+    }
+
+    textarea, iframe {
+        flex: 1;
+        width: 100%;
+        border: 2px inset var(--win-shadow);
+        background-color: #fff;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    textarea {
+        font-family: "Courier New", monospace;
+        font-size: 16px; /* Prevents iOS auto-zoom */
+        padding: 10px;
+        resize: none;
+    }
+
+    /* Small screen adjustments */
+    @media (max-width: 480px) {
+        .title-bar span:last-child { display: none; } /* Hide status on tiny screens */
+    }
+
+    .status-bar {
+        border: 2px inset var(--win-white);
+        margin-top: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        background: var(--win-gray);
+    }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="pane">
+        <div class="title-bar">
+            <span>SOURCE.HTM</span>
+            <span id="status" style="color: #00ff00;">IDLE</span>
+        </div>
+        <textarea id="editor" spellcheck="false" placeholder="Enter HTML..."></textarea>
+    </div>
+
+    <div class="pane">
+        <div class="title-bar">
+            <span>PREVIEW.EXE</span>
+        </div>
+        <iframe id="preview"></iframe>
+    </div>
+</div>
+
+<div class="status-bar">
+    System Status: <span id="sys-msg">Waiting for input...</span>
+</div>
+
+<script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+    const sysMsg = document.getElementById('sys-msg');
+    let timer;
+
+    // Initial 90s Template
+    editor.value = `<html>
+<body bgcolor="#000080" text="#ffffff">
+<center>
+  <br>
+  <table border="3" bgcolor="#c0c0c0" width="80%">
+    <tr>
+      <td align="center">
+        <font color="#000000" face="Arial">
+          <h2>Welcome to 1996</h2>
+          <hr>
+          <marquee>Responsive & Retro!</marquee>
+          <p>On <b>Desktop</b>, I am on the right.</p>
+          <p>On <b>Mobile</b>, I am on the bottom.</p>
+        </font>
+      </td>
+    </tr>
+  </table>
+</center>
+</body>
+</html>`;
+
+    function render() {
+        preview.srcdoc = editor.value;
+        status.innerText = "IDLE";
+        status.style.color = "#00ff00";
+        sysMsg.innerText = "Compilation complete.";
+    }
+
+    editor.addEventListener('input', () => {
+        status.innerText = "BUSY";
+        status.style.color = "yellow";
+        sysMsg.innerText = "Processing tags...";
+        clearTimeout(timer);
+        timer = setTimeout(render, 500);
+    });
+
+    // Initial Load
+    render();
+</script>
+
+</body>
+</html>
